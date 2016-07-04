@@ -1,0 +1,64 @@
+﻿create database shopping;
+use shopping;
+
+create table item(itemcode int primary key auto_increment,itemname varchar(15),unitprice int not null);
+create table customertable(customerid int primary key auto_increment,customername varchar(20),mobileno bigint,address1 varchar(15),address2 varchar(15));
+create table ordertable(orderno int primary key auto_increment,orderdate date,customerid int ,constraint f1 foreign key(customerid) references customertable(customerid));
+create table orderdetails(orderno int,constraint f2 foreign key(orderno) references ordertable(orderno),itemno int,constraint f3 foreign key(itemno) references item(itemcode),qty int);
+
+select * from orderdetails;
+select * from item;
+select * from customertable;
+select * from ordertable;
+
+insert into item(itemcode,itemname,unitprice) values(1,'LED TV',38000),(2,'Samsung Fridge',25000),(3,'AC',34000);
+insert into customertable(customerid,customername,mobileno,address1,address2) values(101,'vidhya','9792233451','Hampankatta','Managlore'),(102,'harish','9994512098','Margansgate','Managlore'),(103,'prabhu','9883421789','joothi','Managlore');
+insert into ordertable(orderno,orderdate,customerid) values(11,'2014/05/02',101),(12,'2014/05/03',102),(13,'2014/05/05',103);
+insert into orderdetails(orderno,itemno,qty) values(11,2,1),(11,3,1),(12,2,1),(13,3,2);
+
+alter table orderdetails drop foreign key f3;
+alter table orderdetails change itemno itemcode int;
+alter table orderdetails add constraint f3 foreign key(itemcode) references item(itemcode);
+
+
+select itemname,unitprice from item where itemcode =1;
+
+
+select customerid from ordertable;
+select count(customerid) from ordertable;
+
+
+select count(orderno) from ordertable where orderdate between'2014/05/03' and '2014/05/05';
+
+
+
+select customername from customertable where customerid in
+(select customerid from ordertable where orderno in (select orderno from orderdetails where itemcode=3));
+
+
+select * from customertable c natural join ordertable o where c.customerid=o.customerid;
+
+
+
+update item set unitprice=36000 where itemcode=3;
+select * from item;
+
+
+select * from item order by unitprice desc;
+
+
+select itemcode,count(orderno) from orderdetails group by itemcode;
+
+
+select itemname from item where itemcode not in(select itemcode  from orderdetails);
+
+
+
+create view view1 as(select itemcode,itemname from item);
+select * from view1;
+
+
+
+select  count(orderno) from orderdetails group by (itemcode);
+
+select itemname from item i inner join orderdetails o on o.itemcode=i.itemcode group by o.itemcode order by sum(o.qty) desc limit 0,1;
